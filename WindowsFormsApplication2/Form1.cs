@@ -113,7 +113,8 @@ namespace WindowsFormsApplication2
             }
             else if (want_to_draw == 6) // ve luc giac deu
             {
-
+                myRegular_Six_angles.append(pStart);
+                myRegular_Six_angles.append(pEnd);
             }
         }
 
@@ -123,6 +124,8 @@ namespace WindowsFormsApplication2
         {
             want_to_draw = -1;
         }
+
+
 
         private void bt_ColorTable_Click(object sender, EventArgs e)
         {
@@ -154,6 +157,11 @@ namespace WindowsFormsApplication2
             want_to_draw = 5;
         }
 
+        private void bt_Regular_Six_Polygon_Click(object sender, EventArgs e)
+        {
+            want_to_draw = 6;
+        }
+
         private void openGLControl_OpenGLDraw(object sender, RenderEventArgs args)
         {
             // Get the OpenGL object.
@@ -170,6 +178,7 @@ namespace WindowsFormsApplication2
                 myrectangles.DrawObject(gl);
                 myEqua_triangles.DrawObject(gl);
                 myRegular_Five_angles.DrawObject(gl);
+                myRegular_Six_angles.DrawObject(gl);
             }
         }
 
@@ -465,15 +474,119 @@ namespace WindowsFormsApplication2
     }
     public class MyRegular_Six_Angle : Object
     {
-        public List<Point> pointList = new List<Point>();
+        public List<Point> Regular_S_Polygon_pointList = new List<Point>();
 
         public override void append(Point mypoint)
         {
-            pointList.Add(mypoint);
+            Regular_S_Polygon_pointList.Add(mypoint);
         }
         public override void DrawObject(OpenGL gl)
         {
-         
+            if (Regular_S_Polygon_pointList != null)
+            {
+                int n = Regular_S_Polygon_pointList.Count();
+                double mid_X, mid_Y, delta_X, delta_Y;
+                double Third_x, Third_y, Fourth_x, Fourth_y, Fifth_x, Fifth_y, Sixth_x, Sixth_y; 
+                
+                for (int i = 0; i < n - 1; i += 2)
+                {
+                    gl.Begin(OpenGL.GL_LINE_LOOP);
+
+                    //////////////////////tính điểm thứ 5
+                    mid_X = Regular_S_Polygon_pointList[i].X;
+                    mid_Y = Regular_S_Polygon_pointList[i].Y;
+
+
+                    // tính hệ số góc
+                    delta_X = Regular_S_Polygon_pointList[i + 1].X - mid_X;
+                    delta_Y = Regular_S_Polygon_pointList[i + 1].Y - mid_Y;
+
+                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                    if (delta_X != 0)
+                    {
+                        double tmp = -delta_X;
+                        delta_X = delta_Y;
+                        delta_Y = tmp;
+
+                    }
+                    else
+                    {
+                        double tmp = -delta_Y;
+                        delta_Y = delta_X;
+                        delta_X = tmp;
+                    }
+
+                    double ratio = Math.Sqrt(3);
+                    Fifth_x = mid_X - ratio * delta_X;
+                    Fifth_y = mid_Y - ratio * delta_Y;
+
+                    ////////////////////////// tính điểm thứ 4
+                    mid_X = Regular_S_Polygon_pointList[i + 1].X;
+                    mid_Y = Regular_S_Polygon_pointList[i + 1].Y;
+
+                    // tính hệ số góc
+                    delta_X = Regular_S_Polygon_pointList[i].X - mid_X;
+                    delta_Y = Regular_S_Polygon_pointList[i].Y - mid_Y;
+
+                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                    if (delta_X != 0)
+                    {
+                        double tmp = -delta_X;
+                        delta_X = delta_Y;
+                        delta_Y = tmp;
+
+                    }
+                    else
+                    {
+                        double tmp = -delta_Y;
+                        delta_Y = delta_X;
+                        delta_X = tmp;
+                    }
+
+                    Fourth_x = mid_X + ratio * delta_X;
+                    Fourth_y = mid_Y + ratio * delta_Y;
+
+                    ////////////////// tính điểm thứ 3
+                    mid_X = (Regular_S_Polygon_pointList[i + 1].X + Fourth_x) / (double)2;
+                    mid_Y = (Regular_S_Polygon_pointList[i + 1].Y + Fourth_y) / (double)2;
+
+                    // tính hệ số góc
+                    delta_X = Regular_S_Polygon_pointList[i + 1].X - mid_X;
+                    delta_Y = Regular_S_Polygon_pointList[i + 1].Y - mid_Y;
+
+                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                    if (delta_X != 0)
+                    {
+                        double tmp = -delta_X;
+                        delta_X = delta_Y;
+                        delta_Y = tmp;
+
+                    }
+                    else
+                    {
+                        double tmp = -delta_Y;
+                        delta_Y = delta_X;
+                        delta_X = tmp;
+                    }
+                    ratio = (double)1 / Math.Sqrt(3);
+                    Third_x = mid_X - ratio * delta_X;
+                    Third_y = mid_Y - ratio * delta_Y;
+
+                    ////////////////// tính điểm thứ 4
+                    ratio = (double)3 / Math.Sqrt(3);
+                    Sixth_x = mid_X + ratio * delta_X;
+                    Sixth_y = mid_Y + ratio * delta_Y;
+
+                    gl.Vertex(Regular_S_Polygon_pointList[i].X, gl.RenderContextProvider.Height - Regular_S_Polygon_pointList[i].Y);//output vertex
+                    gl.Vertex(Regular_S_Polygon_pointList[i + 1].X, gl.RenderContextProvider.Height - Regular_S_Polygon_pointList[i + 1].Y);//output vertex
+                    gl.Vertex(Third_x, gl.RenderContextProvider.Height - Third_y);//output vertex
+                    gl.Vertex(Fourth_x, gl.RenderContextProvider.Height - Fourth_y);//output verte
+                    gl.Vertex(Fifth_x, gl.RenderContextProvider.Height - Fifth_y);//output verte
+                    gl.Vertex(Sixth_x, gl.RenderContextProvider.Height - Sixth_y);//output verte
+                    gl.End();
+                    gl.Flush();
+                }
+            }
         }
     }
 }

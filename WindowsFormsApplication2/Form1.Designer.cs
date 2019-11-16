@@ -38,6 +38,7 @@
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.bt_Equilateral_Triangle = new System.Windows.Forms.Button();
             this.bt_Regular_Five_Polygon = new System.Windows.Forms.Button();
+            this.bt_Regular_Six_Polygon = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -151,11 +152,24 @@
             this.bt_Regular_Five_Polygon.UseVisualStyleBackColor = false;
             this.bt_Regular_Five_Polygon.Click += new System.EventHandler(this.bt_Regular_Five_Polygon_Click);
             // 
+            // bt_Regular_Six_Polygon
+            // 
+            this.bt_Regular_Six_Polygon.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_Regular_Six_Polygon.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_Regular_Six_Polygon.Location = new System.Drawing.Point(588, 13);
+            this.bt_Regular_Six_Polygon.Name = "bt_Regular_Six_Polygon";
+            this.bt_Regular_Six_Polygon.Size = new System.Drawing.Size(75, 59);
+            this.bt_Regular_Six_Polygon.TabIndex = 9;
+            this.bt_Regular_Six_Polygon.Text = "Regular Six Polygon";
+            this.bt_Regular_Six_Polygon.UseVisualStyleBackColor = false;
+            this.bt_Regular_Six_Polygon.Click += new System.EventHandler(this.bt_Regular_Six_Polygon_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1118, 522);
+            this.Controls.Add(this.bt_Regular_Six_Polygon);
             this.Controls.Add(this.bt_Regular_Five_Polygon);
             this.Controls.Add(this.bt_Equilateral_Triangle);
             this.Controls.Add(this.bt_Rectangle);
@@ -185,6 +199,7 @@
         private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.Button bt_Equilateral_Triangle;
         private System.Windows.Forms.Button bt_Regular_Five_Polygon;
+        private System.Windows.Forms.Button bt_Regular_Six_Polygon;
     }
 }
 
