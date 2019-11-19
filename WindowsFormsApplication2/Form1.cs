@@ -8,29 +8,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpGL;
+using Timer = System.Timers.Timer;
+using System.Timers;
 
 
 
- 
 
 
 namespace WindowsFormsApplication2
 {
-
     public partial class Form1 : Form
     {
-        Color colorUser;
-        int want_to_draw;
+        Color colorUser, colorUser1;
+        float sizeUser;
+
         OpenGL gl;
         Point pStart, pEnd;
+
+        int want_to_draw;
+        int state_down_mouse;
 
         Object mylines, mycircles, myrectangles, myellipses, myEqua_triangles, myRegular_Five_angles, myRegular_Six_angles;
         public Form1()
         {
             InitializeComponent();
             gl = openGLControl.OpenGL;
+
+
             want_to_draw = -1;
+
+            sizeUser = 2.0f;
             colorUser = Color.White;
+            colorUser1 = Color.White;
+
+            //các mảng lưu các hình vẽ
             mylines = new MyLine();
             mycircles = new MyCircle();
             myrectangles = new MyRectangle();
@@ -38,6 +49,9 @@ namespace WindowsFormsApplication2
             myEqua_triangles = new MyEqua_Triangle();
             myRegular_Five_angles = new MyRegular_Five_Angle();
             myRegular_Six_angles = new MyRegular_Six_Angle();
+
+            //trạng thái vẽ hình
+            state_down_mouse = 0;
         }
         private void openGLControl_OpenGLInitialized(object sender, EventArgs e)
         {
@@ -74,8 +88,12 @@ namespace WindowsFormsApplication2
 
         private void ctrl_OpenGLControl_MouseDown(object sender, MouseEventArgs e)
         {
-            pStart = e.Location;
-            pEnd = pStart;
+            if (want_to_draw != -1)
+            {
+                pStart = e.Location;
+                pEnd = pStart;
+                state_down_mouse = 1;
+            }
         }
 
 
@@ -83,39 +101,37 @@ namespace WindowsFormsApplication2
         private void ctrl_openGLControl_MouseUp(object sender, MouseEventArgs e)
         {
             pEnd = e.Location;
-            if (want_to_draw == 0) // ve duong thang
+            if (want_to_draw != -1)
             {
-                mylines.append(pStart);
-                mylines.append(pEnd);
-            }
-            else if (want_to_draw == 1) // ve duong tron
-            {
-                mycircles.append(pStart);
-                mycircles.append(pEnd);
-            }
-            else if (want_to_draw == 2) // ve hinh chu nhat
-            {
-                myrectangles.append(pStart);
-                myrectangles.append(pEnd);
-            }
-            else if (want_to_draw == 3)// ve ellipse
-            {
+                if (want_to_draw == 0) // ve duong thang
+                {
+                    mylines.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 1) // ve duong tron
+                {
+                    mycircles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 2) // ve hinh chu nhat
+                {
+                    myrectangles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 3)// ve ellipse
+                {
 
-            }
-            else if (want_to_draw == 4) // ve tam giac deu
-            {
-                myEqua_triangles.append(pStart);
-                myEqua_triangles.append(pEnd);
-            }
-            else if (want_to_draw == 5) // ve ngu giac deu
-            {
-                myRegular_Five_angles.append(pStart);
-                myRegular_Five_angles.append(pEnd);
-            }
-            else if (want_to_draw == 6) // ve luc giac deu
-            {
-                myRegular_Six_angles.append(pStart);
-                myRegular_Six_angles.append(pEnd);
+                }
+                else if (want_to_draw == 4) // ve tam giac deu
+                {
+                    myEqua_triangles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 5) // ve ngu giac deu
+                {
+                    myRegular_Five_angles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 6) // ve luc giac deu
+                {
+                    myRegular_Six_angles.append(pStart, pEnd);
+                }
+                state_down_mouse = 0;
             }
         }
 
@@ -132,7 +148,48 @@ namespace WindowsFormsApplication2
         {
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
-                colorUser = colorDialog1.Color;
+                    colorUser = colorDialog1.Color;
+            }
+        }
+
+        private void ctrl_openGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            
+            if (want_to_draw != -1 && state_down_mouse == 1) // trang thai ve
+            {
+                pEnd = e.Location;
+                if (want_to_draw == 0) // ve duong thang
+                {
+                    mylines.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 1) // ve duong tron
+                {
+                    mycircles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 2) // ve hinh chu nhat
+                {
+                    myrectangles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 3)// ve ellipse
+                {
+
+                }
+                else if (want_to_draw == 4) // ve tam giac deu
+                {
+                    myEqua_triangles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 5) // ve ngu giac deu
+                {
+                    myRegular_Five_angles.append(pStart, pEnd);
+                }
+                else if (want_to_draw == 6) // ve luc giac deu
+                {
+                    myRegular_Six_angles.append(pStart, pEnd);
+                }
+            }
+            else // trang thai khac
+            {
+
             }
         }
 
@@ -171,15 +228,12 @@ namespace WindowsFormsApplication2
                 // Clear the color and depth buffer.
                 gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
-                // select color
-                gl.Color(Color.White.R / 255.0, Color.White.G / 255.0, Color.White.B / 255.0, 0);
-
-                mylines.DrawObject(gl);
-                mycircles.DrawObject(gl);
-                myrectangles.DrawObject(gl);
-                myEqua_triangles.DrawObject(gl);
-                myRegular_Five_angles.DrawObject(gl);
-                myRegular_Six_angles.DrawObject(gl);
+                mylines.DrawObject(gl, colorUser, sizeUser);
+                mycircles.DrawObject(gl, colorUser, sizeUser);
+                myrectangles.DrawObject(gl, colorUser, sizeUser);
+                myEqua_triangles.DrawObject(gl, colorUser, sizeUser);
+                myRegular_Five_angles.DrawObject(gl, colorUser, sizeUser);
+                myRegular_Six_angles.DrawObject(gl, colorUser, sizeUser);
             }
         }
 
@@ -188,9 +242,9 @@ namespace WindowsFormsApplication2
     public abstract class Object
     {
 
-        public abstract void append(Point mypoint);
+        public abstract void append(Point first_point,Point second_point);
 
-        public abstract void DrawObject(OpenGL gl);
+        public abstract void DrawObject(OpenGL gl, Color colorUser, float sizeUser);
     }
 
     public class MyLine : Object
@@ -198,15 +252,26 @@ namespace WindowsFormsApplication2
 
         public List<Point> line_pointlist = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            line_pointlist.Add(mypoint);
+            int n = line_pointlist.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (line_pointlist[i] == first_point)
+                {
+                    line_pointlist[i + 1] = second_point;
+                    return;
+                }
+            }
+            line_pointlist.Add(first_point);
+            line_pointlist.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             if (line_pointlist != null)
             {
-
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
                 int n = line_pointlist.Count();
                 for (int i = 0; i < n; i += 2)
@@ -224,15 +289,28 @@ namespace WindowsFormsApplication2
     {
         public List<Point> circle_pointlist = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            circle_pointlist.Add(mypoint);
+            int n = circle_pointlist.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (circle_pointlist[i] == first_point)
+                {
+                    circle_pointlist[i + 1] = second_point;
+                    return;
+                }
+            }
+            circle_pointlist.Add(first_point);
+            circle_pointlist.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             double dRadius;
             if (circle_pointlist != null)
             {
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+
                 int n = circle_pointlist.Count();
 
                 for (int i = 0; i < n; i += 2)
@@ -258,23 +336,28 @@ namespace WindowsFormsApplication2
 
     public class MyRectangle : Object
     {
-        public List<Point> retangle_pointlist = new List<Point
-            >();
+        public List<Point> retangle_pointlist = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            retangle_pointlist.Add(mypoint);
+            int n = retangle_pointlist.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (retangle_pointlist[i] == first_point)
+                {
+                    retangle_pointlist[i + 1] = second_point;
+                    return;
+                }
+            }
+            retangle_pointlist.Add(first_point);
+            retangle_pointlist.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             if (retangle_pointlist != null)
             {
-                // Clear the color and depth buffer.
-                //gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-
-                // select color
-               // gl.Color(Color.White.R / 255.0, Color.White.G / 255.0, Color.White.B / 255.0, 0);
-
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
                 int n = retangle_pointlist.Count();
                 for (int i = 0; i < n - 1; i += 2)
@@ -297,14 +380,27 @@ namespace WindowsFormsApplication2
     {
         public List<Point> E_TriAngle_pointlist = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            E_TriAngle_pointlist.Add(mypoint);
+            int n = E_TriAngle_pointlist.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (E_TriAngle_pointlist[i] == first_point)
+                {
+                    E_TriAngle_pointlist[i + 1] = second_point;
+                    return;
+                }
+            }
+            E_TriAngle_pointlist.Add(first_point);
+            E_TriAngle_pointlist.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             if (E_TriAngle_pointlist != null)
             {
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+
                 int n = E_TriAngle_pointlist.Count();
                 double mid_X, mid_Y, delta_X, delta_Y, x, y;
                 for (int i = 0; i < n; i += 2)
@@ -350,14 +446,26 @@ namespace WindowsFormsApplication2
     {
         public List<Point> Regular_Polygon_pointlist = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            Regular_Polygon_pointlist.Add(mypoint);
+            int n = Regular_Polygon_pointlist.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (Regular_Polygon_pointlist[i] == first_point)
+                {
+                    Regular_Polygon_pointlist[i + 1] = second_point;
+                    return;
+                }
+            }
+            Regular_Polygon_pointlist.Add(first_point);
+            Regular_Polygon_pointlist.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             if (Regular_Polygon_pointlist != null)
             {
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
                 int n = Regular_Polygon_pointlist.Count();
 
                 double mid_X, mid_Y, delta_X, delta_Y;
@@ -477,14 +585,27 @@ namespace WindowsFormsApplication2
     {
         public List<Point> Regular_S_Polygon_pointList = new List<Point>();
 
-        public override void append(Point mypoint)
+        public override void append(Point first_point, Point second_point)
         {
-            Regular_S_Polygon_pointList.Add(mypoint);
+            int n = Regular_S_Polygon_pointList.Count();
+            for (int i = 0; i < n; i++)
+            {
+                if (Regular_S_Polygon_pointList[i] == first_point)
+                {
+                    Regular_S_Polygon_pointList[i + 1] = second_point;
+                    return;
+                }
+            }
+            Regular_S_Polygon_pointList.Add(first_point);
+            Regular_S_Polygon_pointList.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl)
+        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
         {
             if (Regular_S_Polygon_pointList != null)
             {
+                gl.LineWidth(sizeUser);
+                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+
                 int n = Regular_S_Polygon_pointList.Count();
                 double mid_X, mid_Y, delta_X, delta_Y;
                 double Third_x, Third_y, Fourth_x, Fourth_y, Fifth_x, Fifth_y, Sixth_x, Sixth_y; 
