@@ -25,7 +25,10 @@ namespace WindowsFormsApplication2
         OpenGL gl;
         Point pStart, pEnd;
 
-        int want_to_draw;
+        static List<Point> pointList = new List<Point>();
+        static List<int> typeList = new List<int>();
+        
+        static int want_to_draw;
         int state_down_mouse;
 
         Object mylines, mycircles, myrectangles, myellipses, myEqua_triangles, myRegular_Five_angles, myRegular_Six_angles;
@@ -238,477 +241,414 @@ namespace WindowsFormsApplication2
         }
 
 
-    }
-    public abstract class Object
-    {
-
-        public abstract void append(Point first_point,Point second_point);
-
-        public abstract void DrawObject(OpenGL gl, Color colorUser, float sizeUser);
-    }
-
-    public class MyLine : Object
-    {
-
-        public List<Point> line_pointlist = new List<Point>();
-
-        public override void append(Point first_point, Point second_point)
+        public abstract class Object
         {
-            int n = line_pointlist.Count();
-            for (int i = 0; i < n; i++)
-            {
-                if (line_pointlist[i] == first_point)
-                {
-                    line_pointlist[i + 1] = second_point;
-                    return;
-                }
-            }
-            line_pointlist.Add(first_point);
-            line_pointlist.Add(second_point);
-        }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
-        {
-            if (line_pointlist != null)
-            {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
-                int n = line_pointlist.Count();
-                for (int i = 0; i < n; i += 2)
-                {
-                    gl.Begin(OpenGL.GL_LINES);
-                    gl.Vertex(line_pointlist[i].X, gl.RenderContextProvider.Height - line_pointlist[i].Y);
-                    gl.Vertex(line_pointlist[i + 1].X, gl.RenderContextProvider.Height - line_pointlist[i + 1].Y);
-                    gl.End();
-                    gl.Flush();
-                }
-            }
-        }
-    }
-    public class MyCircle : Object
-    {
-        public List<Point> circle_pointlist = new List<Point>();
-
-        public override void append(Point first_point, Point second_point)
-        {
-            int n = circle_pointlist.Count();
-            for (int i = 0; i < n; i++)
+            public void append(Point first_point, Point second_point)
             {
-                if (circle_pointlist[i] == first_point)
+                int n = pointList.Count();
+                for (int i = 0; i < n; i++)
                 {
-                    circle_pointlist[i + 1] = second_point;
-                    return;
-                }
-            }
-            circle_pointlist.Add(first_point);
-            circle_pointlist.Add(second_point);
-        }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
-        {
-            double dRadius;
-            if (circle_pointlist != null)
-            {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
-
-                int n = circle_pointlist.Count();
-
-                for (int i = 0; i < n; i += 2)
-                {
-                    gl.Begin(OpenGL.GL_LINE_LOOP);
-                    dRadius = dRadius = Math.Sqrt((circle_pointlist[i].X - circle_pointlist[i + 1].X) * (circle_pointlist[i].X - circle_pointlist[i + 1].X) + (circle_pointlist[i].Y - circle_pointlist[i + 1].Y) * (circle_pointlist[i].Y - circle_pointlist[i + 1].Y));
-                    double x, y, theta;
-                    for (int j = 0; j < 50; j++)
+                    if (pointList[i] == first_point)
                     {
-                        theta = 2.0f * 3.1415926f * (double)j / (double)50;//get the current angle
-
-                        x = dRadius * Math.Cos(theta);//calculate the x component
-                        y = dRadius * Math.Sin(theta);//calculate the y component
-
-                        gl.Vertex(x + circle_pointlist[i].X, gl.RenderContextProvider.Height - (y +  circle_pointlist[i].Y));//output vertex
+                        pointList[i + 1] = second_point;
+                        return;
                     }
-                    gl.End();
-                    gl.Flush();
+                }
+                pointList.Add(first_point);
+                pointList.Add(second_point);
+                typeList.Add(want_to_draw);
+            }
+
+            public abstract void DrawObject(OpenGL gl, Color colorUser, float sizeUser);
+        }
+
+        public class MyLine : Object
+        {
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            {
+                if (pointList != null && typeList != null)
+                {
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+
+                    int n = pointList.Count();
+                    for (int i = 0; i < n; i += 2)
+                    {
+                        if (typeList[i / 2] == 0)
+                        {
+                            gl.Begin(OpenGL.GL_LINES);
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);
+                            gl.End();
+                            gl.Flush();
+                        }
+                    }
                 }
             }
         }
-    }
-
-    public class MyRectangle : Object
-    {
-        public List<Point> retangle_pointlist = new List<Point>();
-
-        public override void append(Point first_point, Point second_point)
+        public class MyCircle : Object
         {
-            int n = retangle_pointlist.Count();
-            for (int i = 0; i < n; i++)
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
             {
-                if (retangle_pointlist[i] == first_point)
+                double dRadius;
+                if (pointList != null)
                 {
-                    retangle_pointlist[i + 1] = second_point;
-                    return;
-                }
-            }
-            retangle_pointlist.Add(first_point);
-            retangle_pointlist.Add(second_point);
-        }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
-        {
-            if (retangle_pointlist != null)
-            {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
-                int n = retangle_pointlist.Count();
-                for (int i = 0; i < n - 1; i += 2)
-                {
-                    gl.Begin(OpenGL.GL_LINE_LOOP);
-                    gl.Vertex(retangle_pointlist[i].X, gl.RenderContextProvider.Height - retangle_pointlist[i].Y);
-                    gl.Vertex(retangle_pointlist[i + 1].X, gl.RenderContextProvider.Height - retangle_pointlist[i].Y);
-                    gl.Vertex(retangle_pointlist[i + 1].X, gl.RenderContextProvider.Height - retangle_pointlist[i + 1].Y);
-                    gl.Vertex(retangle_pointlist[i].X, gl.RenderContextProvider.Height - retangle_pointlist[i + 1].Y);
-                    gl.End();
-                    gl.Flush();
+                    int n = pointList.Count();
+
+                    for (int i = 0; i < n; i += 2)
+                    {
+                        if (typeList[i / 2] == 1)
+                        {
+                            gl.Begin(OpenGL.GL_LINE_LOOP);
+                            dRadius = dRadius = Math.Sqrt((pointList[i].X - pointList[i + 1].X) * (pointList[i].X - pointList[i + 1].X) + (pointList[i].Y - pointList[i + 1].Y) * (pointList[i].Y - pointList[i + 1].Y));
+                            double x, y, theta;
+                            for (int j = 0; j < 50; j++)
+                            {
+                                theta = 2.0f * 3.1415926f * (double)j / (double)50;//get the current angle
+
+                                x = dRadius * Math.Cos(theta);//calculate the x component
+                                y = dRadius * Math.Sin(theta);//calculate the y component
+
+                                gl.Vertex(x + pointList[i].X, gl.RenderContextProvider.Height - (y + pointList[i].Y));//output vertex
+                            }
+                            gl.End();
+                            gl.Flush();
+                        }
+                    }
                 }
             }
         }
-    }
 
-
-    //tam giac deu
-    public class MyEqua_Triangle : Object 
-    {
-        public List<Point> E_TriAngle_pointlist = new List<Point>();
-
-        public override void append(Point first_point, Point second_point)
+        public class MyRectangle : Object
         {
-            int n = E_TriAngle_pointlist.Count();
-            for (int i = 0; i < n; i++)
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
             {
-                if (E_TriAngle_pointlist[i] == first_point)
+                if (pointList != null)
                 {
-                    E_TriAngle_pointlist[i + 1] = second_point;
-                    return;
-                }
-            }
-            E_TriAngle_pointlist.Add(first_point);
-            E_TriAngle_pointlist.Add(second_point);
-        }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
-        {
-            if (E_TriAngle_pointlist != null)
-            {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
-                int n = E_TriAngle_pointlist.Count();
-                double mid_X, mid_Y, delta_X, delta_Y, x, y;
-                for (int i = 0; i < n; i += 2)
-                {
-                    gl.Begin(OpenGL.GL_LINE_LOOP);
-
-                    // tìm kiếm trung điểm cạnh đã có
-                    mid_X = (E_TriAngle_pointlist[i].X + E_TriAngle_pointlist[i + 1].X) / (double)2;
-                    mid_Y = (E_TriAngle_pointlist[i].Y + E_TriAngle_pointlist[i + 1].Y) / (double)2;
-
-                    // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
-                    delta_X = E_TriAngle_pointlist[i].X - mid_X;
-                    delta_Y = E_TriAngle_pointlist[i].Y - mid_Y;
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
+                    int n = pointList.Count();
+                    for (int i = 0; i < n - 1; i += 2)
                     {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
-
+                        if (typeList[i / 2] == 2)
+                        {
+                            gl.Begin(OpenGL.GL_LINE_LOOP);
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i].Y);
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);
+                            gl.End();
+                            gl.Flush();
+                        }
                     }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-                    //tính điểm còn lại theo công thức x = mid_X + căn(3)*delta_X, y = mid_y + căn(3)*delta_Y
-                    x = mid_X + Math.Sqrt(3) * delta_X;
-                    y = mid_Y + Math.Sqrt(3) * delta_Y;
-
-                    gl.Vertex(E_TriAngle_pointlist[i].X, gl.RenderContextProvider.Height - E_TriAngle_pointlist[i].Y);//output verte
-                    gl.Vertex(E_TriAngle_pointlist[i + 1].X, gl.RenderContextProvider.Height - E_TriAngle_pointlist[i + 1].Y);//output verte
-                    gl.Vertex(x, gl.RenderContextProvider.Height  - y);//output verte
-                    gl.End();
-                    gl.Flush();
                 }
             }
         }
-    }
-    public class MyRegular_Five_Angle : Object
-    {
-        public List<Point> Regular_Polygon_pointlist = new List<Point>();
 
-        public override void append(Point first_point, Point second_point)
+
+        //tam giac deu
+        public class MyEqua_Triangle : Object
         {
-            int n = Regular_Polygon_pointlist.Count();
-            for (int i = 0; i < n; i++)
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
             {
-                if (Regular_Polygon_pointlist[i] == first_point)
+                if (pointList != null)
                 {
-                    Regular_Polygon_pointlist[i + 1] = second_point;
-                    return;
-                }
-            }
-            Regular_Polygon_pointlist.Add(first_point);
-            Regular_Polygon_pointlist.Add(second_point);
-        }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
-        {
-            if (Regular_Polygon_pointlist != null)
-            {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
-                int n = Regular_Polygon_pointlist.Count();
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
-                double mid_X, mid_Y, delta_X, delta_Y;
-                double mid_coorinate_x, mid_coorinate_y;
-                double left_coorinate_x, right_coorinate_x, left_coorinate_y, right_coorinate_y;
-
-                double length, mid_length;
-
-                for (int i = 0; i < n; i += 2)
-                {
-                    gl.Begin(OpenGL.GL_LINE_LOOP);
-                    
-                    length = Math.Sqrt((Regular_Polygon_pointlist[i].X - Regular_Polygon_pointlist[i + 1].X) * 
-                        (Regular_Polygon_pointlist[i].X - Regular_Polygon_pointlist[i + 1].X) + 
-                        (Regular_Polygon_pointlist[i].Y - Regular_Polygon_pointlist[i + 1].Y) * 
-                        (Regular_Polygon_pointlist[i].Y - Regular_Polygon_pointlist[i + 1].Y));
-                    /////////////////// giai đoạn 1
-                    // tìm kiếm trung điểm cạnh đã có
-                    mid_X = (Regular_Polygon_pointlist[i].X + Regular_Polygon_pointlist[i + 1].X) / (double)2;
-                    mid_Y = (Regular_Polygon_pointlist[i].Y + Regular_Polygon_pointlist[i + 1].Y) / (double)2;
-
-                    // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
-                    delta_X = Regular_Polygon_pointlist[i].X - mid_X;
-                    delta_Y = Regular_Polygon_pointlist[i].Y - mid_Y;
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
+                    int n = pointList.Count();
+                    double mid_X, mid_Y, delta_X, delta_Y, x, y;
+                    for (int i = 0; i < n; i += 2)
                     {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
+                        if (typeList[i / 2] == 4)
+                        {
+                            gl.Begin(OpenGL.GL_LINE_LOOP);
 
+                            // tìm kiếm trung điểm cạnh đã có
+                            mid_X = (pointList[i].X + pointList[i + 1].X) / (double)2;
+                            mid_Y = (pointList[i].Y + pointList[i + 1].Y) / (double)2;
+
+                            // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
+                            delta_X = pointList[i].X - mid_X;
+                            delta_Y = pointList[i].Y - mid_Y;
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+                            //tính điểm còn lại theo công thức x = mid_X + căn(3)*delta_X, y = mid_y + căn(3)*delta_Y
+                            x = mid_X + Math.Sqrt(3) * delta_X;
+                            y = mid_Y + Math.Sqrt(3) * delta_Y;
+
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);//output verte
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);//output verte
+                            gl.Vertex(x, gl.RenderContextProvider.Height - y);//output verte
+                            gl.End();
+                            gl.Flush();
+                        }
                     }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-                    //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
-                    double ratio = Math.Sqrt(2*(1 - Math.Cos(3.1415926f * (double)3 / (double)5)) - (double)1/(double)4) / ((double)1/(double)2);
-                    mid_coorinate_x = mid_X + ratio * delta_X;
-                    mid_coorinate_y = mid_Y + ratio * delta_Y;
-
-                    /////////////////// giai đoạn 2
-                    // tìm kiếm trung điểm cạnh đã có
-                    mid_X = (Regular_Polygon_pointlist[i].X + mid_coorinate_x) / (double)2;
-                    mid_Y = (Regular_Polygon_pointlist[i].Y + mid_coorinate_y) / (double)2;
-
-                    // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
-                    delta_X = mid_coorinate_x - mid_X;
-                    delta_Y = mid_coorinate_y - mid_Y;
-
-                    mid_length = Math.Sqrt(delta_X * delta_X + delta_Y * delta_Y);
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
-                    {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
-
-                    }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-                    //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
-                    ratio = length * length * Math.Sin(3.1415926f * (double)3 / (double)5) / ((double)2* mid_length*mid_length);
-                    left_coorinate_x = mid_X - ratio * delta_X;
-                    left_coorinate_y = mid_Y - ratio * delta_Y;
-
-                    /////////////////// giai đoạn 2=3
-                    // tìm kiếm trung điểm cạnh đã có
-                    mid_X = (Regular_Polygon_pointlist[i + 1].X + mid_coorinate_x) / (double)2;
-                    mid_Y = (Regular_Polygon_pointlist[i + 1].Y + mid_coorinate_y) / (double)2;
-
-                    // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
-                    delta_X = mid_coorinate_x - mid_X;
-                    delta_Y = mid_coorinate_y - mid_Y;
-
-                    mid_length = Math.Sqrt(delta_X * delta_X + delta_Y * delta_Y);
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
-                    {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
-
-                    }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-                    //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
-                    ratio = length*length*Math.Sin(3.1415926f * (double)3 / (double)5) / ((double)2 * mid_length * mid_length);
-                    right_coorinate_x = mid_X + ratio * delta_X;
-                    right_coorinate_y = mid_Y + ratio * delta_Y;
-
-                    gl.Vertex(Regular_Polygon_pointlist[i].X, gl.RenderContextProvider.Height - Regular_Polygon_pointlist[i].Y);//output vertex
-                    gl.Vertex(Regular_Polygon_pointlist[i + 1].X, gl.RenderContextProvider.Height - Regular_Polygon_pointlist[i + 1].Y);//output vertex
-                    gl.Vertex(right_coorinate_x, gl.RenderContextProvider.Height - right_coorinate_y);//output vertex
-                    gl.Vertex(mid_coorinate_x, gl.RenderContextProvider.Height - mid_coorinate_y);//output verte
-                    gl.Vertex(left_coorinate_x, gl.RenderContextProvider.Height - left_coorinate_y);//output verte
-                    gl.End();
-                    gl.Flush();
                 }
             }
         }
-    }
-    public class MyRegular_Six_Angle : Object
-    {
-        public List<Point> Regular_S_Polygon_pointList = new List<Point>();
-
-        public override void append(Point first_point, Point second_point)
+        public class MyRegular_Five_Angle : Object
         {
-            int n = Regular_S_Polygon_pointList.Count();
-            for (int i = 0; i < n; i++)
+
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
             {
-                if (Regular_S_Polygon_pointList[i] == first_point)
+                if (pointList != null)
                 {
-                    Regular_S_Polygon_pointList[i + 1] = second_point;
-                    return;
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
+                    int n = pointList.Count();
+
+                    double mid_X, mid_Y, delta_X, delta_Y;
+                    double mid_coorinate_x, mid_coorinate_y;
+                    double left_coorinate_x, right_coorinate_x, left_coorinate_y, right_coorinate_y;
+
+                    double length, mid_length;
+
+                    for (int i = 0; i < n; i += 2)
+                    {
+                        if (typeList[i / 2] == 5)
+                        {
+                            gl.Begin(OpenGL.GL_LINE_LOOP);
+
+                            length = Math.Sqrt((pointList[i].X - pointList[i + 1].X) *
+                                (pointList[i].X - pointList[i + 1].X) +
+                                (pointList[i].Y - pointList[i + 1].Y) *
+                                (pointList[i].Y - pointList[i + 1].Y));
+                            /////////////////// giai đoạn 1
+                            // tìm kiếm trung điểm cạnh đã có
+                            mid_X = (pointList[i].X + pointList[i + 1].X) / (double)2;
+                            mid_Y = (pointList[i].Y + pointList[i + 1].Y) / (double)2;
+
+                            // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
+                            delta_X = pointList[i].X - mid_X;
+                            delta_Y = pointList[i].Y - mid_Y;
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+                            //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
+                            double ratio = Math.Sqrt(2 * (1 - Math.Cos(3.1415926f * (double)3 / (double)5)) - (double)1 / (double)4) / ((double)1 / (double)2);
+                            mid_coorinate_x = mid_X + ratio * delta_X;
+                            mid_coorinate_y = mid_Y + ratio * delta_Y;
+
+                            /////////////////// giai đoạn 2
+                            // tìm kiếm trung điểm cạnh đã có
+                            mid_X = (pointList[i].X + mid_coorinate_x) / (double)2;
+                            mid_Y = (pointList[i].Y + mid_coorinate_y) / (double)2;
+
+                            // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
+                            delta_X = mid_coorinate_x - mid_X;
+                            delta_Y = mid_coorinate_y - mid_Y;
+
+                            mid_length = Math.Sqrt(delta_X * delta_X + delta_Y * delta_Y);
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+                            //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
+                            ratio = length * length * Math.Sin(3.1415926f * (double)3 / (double)5) / ((double)2 * mid_length * mid_length);
+                            left_coorinate_x = mid_X - ratio * delta_X;
+                            left_coorinate_y = mid_Y - ratio * delta_Y;
+
+                            /////////////////// giai đoạn 2=3
+                            // tìm kiếm trung điểm cạnh đã có
+                            mid_X = (pointList[i + 1].X + mid_coorinate_x) / (double)2;
+                            mid_Y = (pointList[i + 1].Y + mid_coorinate_y) / (double)2;
+
+                            // tính hệ số góc cạnh đã có (tính tử và mẫu riêng tránh trường hợp chia cho 0)
+                            delta_X = mid_coorinate_x - mid_X;
+                            delta_Y = mid_coorinate_y - mid_Y;
+
+                            mid_length = Math.Sqrt(delta_X * delta_X + delta_Y * delta_Y);
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+                            //tính điểm còn lại theo công thức x = mid_X + "Ratio"*delta_X, y = mid_y + "Ratio"*delta_Y
+                            ratio = length * length * Math.Sin(3.1415926f * (double)3 / (double)5) / ((double)2 * mid_length * mid_length);
+                            right_coorinate_x = mid_X + ratio * delta_X;
+                            right_coorinate_y = mid_Y + ratio * delta_Y;
+
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);//output vertex
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);//output vertex
+                            gl.Vertex(right_coorinate_x, gl.RenderContextProvider.Height - right_coorinate_y);//output vertex
+                            gl.Vertex(mid_coorinate_x, gl.RenderContextProvider.Height - mid_coorinate_y);//output verte
+                            gl.Vertex(left_coorinate_x, gl.RenderContextProvider.Height - left_coorinate_y);//output verte
+                            gl.End();
+                            gl.Flush();
+                        }
+                    }
                 }
             }
-            Regular_S_Polygon_pointList.Add(first_point);
-            Regular_S_Polygon_pointList.Add(second_point);
         }
-        public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+        public class MyRegular_Six_Angle : Object
         {
-            if (Regular_S_Polygon_pointList != null)
+            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
             {
-                gl.LineWidth(sizeUser);
-                gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
-
-                int n = Regular_S_Polygon_pointList.Count();
-                double mid_X, mid_Y, delta_X, delta_Y;
-                double Third_x, Third_y, Fourth_x, Fourth_y, Fifth_x, Fifth_y, Sixth_x, Sixth_y; 
-                
-                for (int i = 0; i < n - 1; i += 2)
+                if (pointList != null)
                 {
-                    gl.Begin(OpenGL.GL_LINE_LOOP);
+                    gl.LineWidth(sizeUser);
+                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
-                    //////////////////////tính điểm thứ 5
-                    mid_X = Regular_S_Polygon_pointList[i].X;
-                    mid_Y = Regular_S_Polygon_pointList[i].Y;
+                    int n = pointList.Count();
+                    double mid_X, mid_Y, delta_X, delta_Y;
+                    double Third_x, Third_y, Fourth_x, Fourth_y, Fifth_x, Fifth_y, Sixth_x, Sixth_y;
 
-
-                    // tính hệ số góc
-                    delta_X = Regular_S_Polygon_pointList[i + 1].X - mid_X;
-                    delta_Y = Regular_S_Polygon_pointList[i + 1].Y - mid_Y;
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
+                    for (int i = 0; i < n - 1; i += 2)
                     {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
+                        if (typeList[i / 2] == 6)
+                        {
+                            gl.Begin(OpenGL.GL_LINE_LOOP);
 
+                            //////////////////////tính điểm thứ 5
+                            mid_X = pointList[i].X;
+                            mid_Y = pointList[i].Y;
+
+
+                            // tính hệ số góc
+                            delta_X = pointList[i + 1].X - mid_X;
+                            delta_Y = pointList[i + 1].Y - mid_Y;
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+
+                            double ratio = Math.Sqrt(3);
+                            Fifth_x = mid_X - ratio * delta_X;
+                            Fifth_y = mid_Y - ratio * delta_Y;
+
+                            ////////////////////////// tính điểm thứ 4
+                            mid_X = pointList[i + 1].X;
+                            mid_Y = pointList[i + 1].Y;
+
+                            // tính hệ số góc
+                            delta_X = pointList[i].X - mid_X;
+                            delta_Y = pointList[i].Y - mid_Y;
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+
+                            Fourth_x = mid_X + ratio * delta_X;
+                            Fourth_y = mid_Y + ratio * delta_Y;
+
+                            ////////////////// tính điểm thứ 3
+                            mid_X = (pointList[i + 1].X + Fourth_x) / (double)2;
+                            mid_Y = (pointList[i + 1].Y + Fourth_y) / (double)2;
+
+                            // tính hệ số góc
+                            delta_X = pointList[i + 1].X - mid_X;
+                            delta_Y = pointList[i + 1].Y - mid_Y;
+
+                            // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
+                            if (delta_X != 0)
+                            {
+                                double tmp = -delta_X;
+                                delta_X = delta_Y;
+                                delta_Y = tmp;
+
+                            }
+                            else
+                            {
+                                double tmp = -delta_Y;
+                                delta_Y = delta_X;
+                                delta_X = tmp;
+                            }
+                            ratio = (double)1 / Math.Sqrt(3);
+                            Third_x = mid_X - ratio * delta_X;
+                            Third_y = mid_Y - ratio * delta_Y;
+
+                            ////////////////// tính điểm thứ 4
+                            ratio = (double)3 / Math.Sqrt(3);
+                            Sixth_x = mid_X + ratio * delta_X;
+                            Sixth_y = mid_Y + ratio * delta_Y;
+
+                            gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);//output vertex
+                            gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);//output vertex
+                            gl.Vertex(Third_x, gl.RenderContextProvider.Height - Third_y);//output vertex
+                            gl.Vertex(Fourth_x, gl.RenderContextProvider.Height - Fourth_y);//output verte
+                            gl.Vertex(Fifth_x, gl.RenderContextProvider.Height - Fifth_y);//output verte
+                            gl.Vertex(Sixth_x, gl.RenderContextProvider.Height - Sixth_y);//output verte
+                            gl.End();
+                            gl.Flush();
+                        }
                     }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-
-                    double ratio = Math.Sqrt(3);
-                    Fifth_x = mid_X - ratio * delta_X;
-                    Fifth_y = mid_Y - ratio * delta_Y;
-
-                    ////////////////////////// tính điểm thứ 4
-                    mid_X = Regular_S_Polygon_pointList[i + 1].X;
-                    mid_Y = Regular_S_Polygon_pointList[i + 1].Y;
-
-                    // tính hệ số góc
-                    delta_X = Regular_S_Polygon_pointList[i].X - mid_X;
-                    delta_Y = Regular_S_Polygon_pointList[i].Y - mid_Y;
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
-                    {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
-
-                    }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-
-                    Fourth_x = mid_X + ratio * delta_X;
-                    Fourth_y = mid_Y + ratio * delta_Y;
-
-                    ////////////////// tính điểm thứ 3
-                    mid_X = (Regular_S_Polygon_pointList[i + 1].X + Fourth_x) / (double)2;
-                    mid_Y = (Regular_S_Polygon_pointList[i + 1].Y + Fourth_y) / (double)2;
-
-                    // tính hệ số góc
-                    delta_X = Regular_S_Polygon_pointList[i + 1].X - mid_X;
-                    delta_Y = Regular_S_Polygon_pointList[i + 1].Y - mid_Y;
-
-                    // tính hệ số góc của đường thẳng vuông góc với cạnh đã có
-                    if (delta_X != 0)
-                    {
-                        double tmp = -delta_X;
-                        delta_X = delta_Y;
-                        delta_Y = tmp;
-
-                    }
-                    else
-                    {
-                        double tmp = -delta_Y;
-                        delta_Y = delta_X;
-                        delta_X = tmp;
-                    }
-                    ratio = (double)1 / Math.Sqrt(3);
-                    Third_x = mid_X - ratio * delta_X;
-                    Third_y = mid_Y - ratio * delta_Y;
-
-                    ////////////////// tính điểm thứ 4
-                    ratio = (double)3 / Math.Sqrt(3);
-                    Sixth_x = mid_X + ratio * delta_X;
-                    Sixth_y = mid_Y + ratio * delta_Y;
-
-                    gl.Vertex(Regular_S_Polygon_pointList[i].X, gl.RenderContextProvider.Height - Regular_S_Polygon_pointList[i].Y);//output vertex
-                    gl.Vertex(Regular_S_Polygon_pointList[i + 1].X, gl.RenderContextProvider.Height - Regular_S_Polygon_pointList[i + 1].Y);//output vertex
-                    gl.Vertex(Third_x, gl.RenderContextProvider.Height - Third_y);//output vertex
-                    gl.Vertex(Fourth_x, gl.RenderContextProvider.Height - Fourth_y);//output verte
-                    gl.Vertex(Fifth_x, gl.RenderContextProvider.Height - Fifth_y);//output verte
-                    gl.Vertex(Sixth_x, gl.RenderContextProvider.Height - Sixth_y);//output verte
-                    gl.End();
-                    gl.Flush();
                 }
             }
         }
     }
+    
 }
