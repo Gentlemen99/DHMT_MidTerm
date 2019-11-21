@@ -249,7 +249,7 @@ namespace WindowsFormsApplication2
                 int n = pointList.Count();
                 for (int i = 0; i < n; i++)
                 {
-                    if (pointList[i] == first_point)
+                    if (pointList[i] == first_point && typeList[i/2] == want_to_draw)
                     {
                         pointList[i + 1] = second_point;
                         return;
