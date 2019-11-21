@@ -19,7 +19,7 @@ namespace WindowsFormsApplication2
 {
     public partial class Form1 : Form
     {
-        Color colorUser, colorUser1;
+        static Color colorUser;
         float sizeUser;
 
         OpenGL gl;
@@ -27,6 +27,7 @@ namespace WindowsFormsApplication2
 
         static List<Point> pointList = new List<Point>();
         static List<int> typeList = new List<int>();
+        static List<Color> colorList = new List<Color>();
         
         static int want_to_draw;
         int state_down_mouse;
@@ -42,7 +43,6 @@ namespace WindowsFormsApplication2
 
             sizeUser = 2.0f;
             colorUser = Color.White;
-            colorUser1 = Color.White;
 
             //các mảng lưu các hình vẽ
             mylines = new MyLine();
@@ -231,12 +231,12 @@ namespace WindowsFormsApplication2
                 // Clear the color and depth buffer.
                 gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
-                mylines.DrawObject(gl, colorUser, sizeUser);
-                mycircles.DrawObject(gl, colorUser, sizeUser);
-                myrectangles.DrawObject(gl, colorUser, sizeUser);
-                myEqua_triangles.DrawObject(gl, colorUser, sizeUser);
-                myRegular_Five_angles.DrawObject(gl, colorUser, sizeUser);
-                myRegular_Six_angles.DrawObject(gl, colorUser, sizeUser);
+                mylines.DrawObject(gl);
+                mycircles.DrawObject(gl);
+                myrectangles.DrawObject(gl);
+                myEqua_triangles.DrawObject(gl);
+                myRegular_Five_angles.DrawObject(gl);
+                myRegular_Six_angles.DrawObject(gl);
             }
         }
 
@@ -258,25 +258,25 @@ namespace WindowsFormsApplication2
                 pointList.Add(first_point);
                 pointList.Add(second_point);
                 typeList.Add(want_to_draw);
+                colorList.Add(colorUser);
             }
 
-            public abstract void DrawObject(OpenGL gl, Color colorUser, float sizeUser);
+            public abstract void DrawObject(OpenGL gl);
         }
 
         public class MyLine : Object
         {
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 if (pointList != null && typeList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
-
                     int n = pointList.Count();
                     for (int i = 0; i < n; i += 2)
                     {
                         if (typeList[i / 2] == 0)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
                             gl.Begin(OpenGL.GL_LINES);
                             gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);
                             gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i + 1].Y);
@@ -289,13 +289,11 @@ namespace WindowsFormsApplication2
         }
         public class MyCircle : Object
         {
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 double dRadius;
                 if (pointList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
                     int n = pointList.Count();
 
@@ -303,6 +301,8 @@ namespace WindowsFormsApplication2
                     {
                         if (typeList[i / 2] == 1)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
                             gl.Begin(OpenGL.GL_LINE_LOOP);
                             dRadius = dRadius = Math.Sqrt((pointList[i].X - pointList[i + 1].X) * (pointList[i].X - pointList[i + 1].X) + (pointList[i].Y - pointList[i + 1].Y) * (pointList[i].Y - pointList[i + 1].Y));
                             double x, y, theta;
@@ -325,18 +325,19 @@ namespace WindowsFormsApplication2
 
         public class MyRectangle : Object
         {
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 if (pointList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
                     int n = pointList.Count();
                     for (int i = 0; i < n - 1; i += 2)
                     {
                         if (typeList[i / 2] == 2)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
+
                             gl.Begin(OpenGL.GL_LINE_LOOP);
                             gl.Vertex(pointList[i].X, gl.RenderContextProvider.Height - pointList[i].Y);
                             gl.Vertex(pointList[i + 1].X, gl.RenderContextProvider.Height - pointList[i].Y);
@@ -354,19 +355,18 @@ namespace WindowsFormsApplication2
         //tam giac deu
         public class MyEqua_Triangle : Object
         {
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 if (pointList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
-
                     int n = pointList.Count();
                     double mid_X, mid_Y, delta_X, delta_Y, x, y;
                     for (int i = 0; i < n; i += 2)
                     {
                         if (typeList[i / 2] == 4)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
                             gl.Begin(OpenGL.GL_LINE_LOOP);
 
                             // tìm kiếm trung điểm cạnh đã có
@@ -408,12 +408,10 @@ namespace WindowsFormsApplication2
         public class MyRegular_Five_Angle : Object
         {
 
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 if (pointList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
                     int n = pointList.Count();
 
                     double mid_X, mid_Y, delta_X, delta_Y;
@@ -426,6 +424,8 @@ namespace WindowsFormsApplication2
                     {
                         if (typeList[i / 2] == 5)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
                             gl.Begin(OpenGL.GL_LINE_LOOP);
 
                             length = Math.Sqrt((pointList[i].X - pointList[i + 1].X) *
@@ -534,12 +534,10 @@ namespace WindowsFormsApplication2
         }
         public class MyRegular_Six_Angle : Object
         {
-            public override void DrawObject(OpenGL gl, Color colorUser, float sizeUser)
+            public override void DrawObject(OpenGL gl)
             {
                 if (pointList != null)
                 {
-                    gl.LineWidth(sizeUser);
-                    gl.Color(colorUser.R / 255.0, colorUser.G / 255.0, colorUser.B / 255.0, 0);
 
                     int n = pointList.Count();
                     double mid_X, mid_Y, delta_X, delta_Y;
@@ -549,6 +547,8 @@ namespace WindowsFormsApplication2
                     {
                         if (typeList[i / 2] == 6)
                         {
+                            Color tmpColor = colorList[i / 2];
+                            gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
                             gl.Begin(OpenGL.GL_LINE_LOOP);
 
                             //////////////////////tính điểm thứ 5
