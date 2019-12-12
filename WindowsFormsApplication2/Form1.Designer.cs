@@ -39,6 +39,10 @@
             this.bt_Equilateral_Triangle = new System.Windows.Forms.Button();
             this.bt_Regular_Five_Polygon = new System.Windows.Forms.Button();
             this.bt_Regular_Six_Polygon = new System.Windows.Forms.Button();
+            this.colorDialog2 = new System.Windows.Forms.ColorDialog();
+            this.bt_Color_Fill = new System.Windows.Forms.Button();
+            this.bt_BloodFill = new System.Windows.Forms.Button();
+            this.bt_ScanLine = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -53,7 +57,7 @@
             this.openGLControl.OpenGLVersion = SharpGL.Version.OpenGLVersion.OpenGL2_1;
             this.openGLControl.RenderContextType = SharpGL.RenderContextType.DIBSection;
             this.openGLControl.RenderTrigger = SharpGL.RenderTrigger.TimerBased;
-            this.openGLControl.Size = new System.Drawing.Size(918, 457);
+            this.openGLControl.Size = new System.Drawing.Size(918, 425);
             this.openGLControl.TabIndex = 0;
             this.openGLControl.OpenGLInitialized += new System.EventHandler(this.openGLControl_OpenGLInitialized);
             this.openGLControl.OpenGLDraw += new SharpGL.RenderEventHandler(this.openGLControl_OpenGLDraw);
@@ -165,11 +169,50 @@
             this.bt_Regular_Six_Polygon.UseVisualStyleBackColor = false;
             this.bt_Regular_Six_Polygon.Click += new System.EventHandler(this.bt_Regular_Six_Polygon_Click);
             // 
+            // bt_Color_Fill
+            // 
+            this.bt_Color_Fill.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_Color_Fill.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_Color_Fill.Location = new System.Drawing.Point(1006, 167);
+            this.bt_Color_Fill.Name = "bt_Color_Fill";
+            this.bt_Color_Fill.Size = new System.Drawing.Size(85, 57);
+            this.bt_Color_Fill.TabIndex = 10;
+            this.bt_Color_Fill.Text = "Color_Fill";
+            this.bt_Color_Fill.UseVisualStyleBackColor = false;
+            this.bt_Color_Fill.Click += new System.EventHandler(this.bt_Color_Fill_Click);
+            // 
+            // bt_BloodFill
+            // 
+            this.bt_BloodFill.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_BloodFill.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_BloodFill.Location = new System.Drawing.Point(1006, 250);
+            this.bt_BloodFill.Name = "bt_BloodFill";
+            this.bt_BloodFill.Size = new System.Drawing.Size(85, 51);
+            this.bt_BloodFill.TabIndex = 11;
+            this.bt_BloodFill.Text = "BloodFill";
+            this.bt_BloodFill.UseVisualStyleBackColor = false;
+            this.bt_BloodFill.Click += new System.EventHandler(this.bt_BloodFill_Click);
+            // 
+            // bt_ScanLine
+            // 
+            this.bt_ScanLine.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_ScanLine.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_ScanLine.Location = new System.Drawing.Point(1006, 332);
+            this.bt_ScanLine.Name = "bt_ScanLine";
+            this.bt_ScanLine.Size = new System.Drawing.Size(85, 51);
+            this.bt_ScanLine.TabIndex = 12;
+            this.bt_ScanLine.Text = "ScanLine";
+            this.bt_ScanLine.UseVisualStyleBackColor = false;
+            this.bt_ScanLine.Click += new System.EventHandler(this.bt_ScanLine_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1118, 566);
+            this.ClientSize = new System.Drawing.Size(1118, 620);
+            this.Controls.Add(this.bt_ScanLine);
+            this.Controls.Add(this.bt_BloodFill);
+            this.Controls.Add(this.bt_Color_Fill);
             this.Controls.Add(this.bt_Regular_Six_Polygon);
             this.Controls.Add(this.bt_Regular_Five_Polygon);
             this.Controls.Add(this.bt_Equilateral_Triangle);
@@ -201,6 +244,10 @@
         private System.Windows.Forms.Button bt_Equilateral_Triangle;
         private System.Windows.Forms.Button bt_Regular_Five_Polygon;
         private System.Windows.Forms.Button bt_Regular_Six_Polygon;
+        private System.Windows.Forms.ColorDialog colorDialog2;
+        private System.Windows.Forms.Button bt_Color_Fill;
+        private System.Windows.Forms.Button bt_BloodFill;
+        private System.Windows.Forms.Button bt_ScanLine;
     }
 }
 
