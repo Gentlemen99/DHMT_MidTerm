@@ -349,43 +349,39 @@ namespace WindowsFormsApplication2
 
         public bool isSameColor(RGB_color A, RGB_color B)
         {
-            if (A.r == B.r 
-                && A.g == B.g 
-                && A.b == B.b)
+            if ((A.r >> 1)  == ((B.r >> 1))
+                && (A.g >> 1) == ((B.g >> 1))
+                && (A.b >> 1) == ((B.b >> 1)))
                 return true;
+
             return false;
         }
 
         private RGB_color GetPixel(int x, int y)
         {
-            byte[] read_pixel = { 0, 0, 0 };
+            byte[] read_pixel = new byte[3];
+
             gl.ReadPixels(x, gl.RenderContextProvider.Height - y, 1, 1, OpenGL.GL_RGB, OpenGL.GL_BYTE, read_pixel);
 
             RGB_color color;
-            color.r = read_pixel[0];
-            color.g = read_pixel[1];
-            color.b = read_pixel[2];
+            color.r = (byte)(read_pixel[0] << 1);
+            color.g = (byte)(read_pixel[1] << 1);
+            color.b = (byte)(read_pixel[2] << 1);
+
+
             return color;
         }
 
         private void PutPixel(int x, int y, RGB_color color)
         {
-            byte[] read_pixel = { 255, 255, 255 };
-            read_pixel[0] = color.r;
-            read_pixel[1] = color.g;
-            read_pixel[2] = color.b;
-
-            //gl.Color(color.r / 255.0, color.g / 255.0, color.b / 255.0, 0);
-            //gl.Begin(OpenGL.GL_LINES);
-            //gl.Vertex(x, gl.RenderContextProvider.Height - y);
-            //gl.Vertex(x + 0.01f, gl.RenderContextProvider.Height - (y + 0.01f));
-            //gl.End();
-            //gl.Flush();
+            byte[] read_pixel = { color.r, color.g, color.b };
+            //read_pixel[0] = color.r;
+            //read_pixel[1] = color.g;
+            //read_pixel[2] = color.b;
 
             gl.RasterPos(x, gl.RenderContextProvider.Height - y);
             gl.DrawPixels(1, 1, OpenGL.GL_RGB, read_pixel);
 
-            gl.End();
             gl.Flush();
         }
 
@@ -433,35 +429,40 @@ namespace WindowsFormsApplication2
             if (!isSameColor(current_color, F_color) && is_inside_object(x, y, index))
             {
                 S = new Point(x, y);
+                PutPixel(x, y, F_color);
                 myqueue.Enqueue(S);
             }
 
-            int[] direction = { -1, 0, 1, 0, -1 };
+            
 
             int current_x, current_y, new_x, new_y;
             int count = 0;
             while (myqueue.Count() > 0)
             {
                 count++;
-                if (count == (int)1e4)
-                    break;
+                //if (count == (int)1e7)
+                //    break;
                 S = myqueue.Dequeue();
 
                 current_x = S.X;
                 current_y = S.Y;
                 if (current_x >= 0 && current_y >= 0)
                 {
-                    PutPixel(current_x, current_y, F_color);
+                    
 
+                    int[] direction = { -1, 0, 1, 0, -1 };
+                    int[] d_x = {-1, 0, 1, 0 };
+                    int[] d_y = {0, 1, 0, -1 };
                     for (int i = 0; i < 4; i++)
                     {
-                        new_x = current_x + direction[i];
-                        new_y = current_y + direction[i + 1];
+                        new_x = (current_x + d_x[i]);
+                        new_y = (current_y + d_y[i]);
 
                         current_color = GetPixel(new_x, new_y);
 
-                        if (!isSameColor(current_color, F_color)  && is_inside_object(new_x, new_y, index))
+                        if (!isSameColor(current_color, F_color) && is_inside_object(new_x, new_y, index))
                         {
+                            PutPixel(new_x, new_y, F_color);
                             Point P = new Point(new_x, new_y);
                             myqueue.Enqueue(P);
                         }
@@ -1206,7 +1207,7 @@ namespace WindowsFormsApplication2
                 tmpList.Add(D);
 
 
-                Point Inf = new Point(1500, P.Y);
+                Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
                 int count = 0;
@@ -1346,7 +1347,7 @@ namespace WindowsFormsApplication2
                 tmpList.Add(C);
 
 
-                Point Inf = new Point(1500, P.Y);
+                Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
                 int count = 0;
@@ -1477,7 +1478,7 @@ namespace WindowsFormsApplication2
                 tmpList.Add(C);
                 tmpList.Add(D);
                 tmpList.Add(E);
-                Point Inf = new Point(1500, P.Y);
+                Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
                 int count = 0;
@@ -1617,29 +1618,77 @@ namespace WindowsFormsApplication2
                 tmpList.Add(F);
 
 
-                Point Inf = new Point(1500, P.Y);
+                Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
+                //for (int i = 0; i < n; i++)
+                //{
+                //    int i_cur = i % n;
+                //    int i_next = (i + 1) % n;
+                //    int i_prev = (i - 1 + n) % n;
+
+                //    if (tmpList[i_prev].Y <= tmpList[i_cur].Y && tmpList[i_cur].Y <= tmpList[i_next].Y)
+                //    {
+                //        Point tmpPoint = new Point(tmpList[i_cur].X, tmpList[i_cur].Y - 1);
+                //        tmpList[i_cur] = tmpPoint;
+                //    }
+                //    else if (tmpList[i_prev].Y >= tmpList[i_cur].Y && tmpList[i_cur].Y >= tmpList[i_next].Y)
+                //    {
+                //        Point tmpPoint = new Point(tmpList[i_cur].X, tmpList[i_cur].Y + 1);
+                //        tmpList[i_cur] = tmpPoint;
+                //    }
+                //}
+
+                double area = area_of_object(tmpList, 6);
+
                 int count = 0;
-                for (int i = 0; i < n; i++)
+                int i = 0;
+                while (i < n)
                 {
                     int i_next = (i + 1) % n;
                     // giao nhau
                     if (doIntersect(tmpList[i], tmpList[i_next], P, Inf))
                     {
-                        //neu P thang hang voi canh
-                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
+                        if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
                         {
-                            //tra ve true neu P nam tren canh
-                            return onSegment(tmpList[i], P, tmpList[i_next]);
+                            //int i_next_next = (i_next + 1) % n;
+                            //int i_prev = (i - 1 + n) % n;
+                            //if (doIntersect(tmpList[i_next], tmpList[i_next_next], P, Inf))
+                            //{
+                            //    i++;
+                            //}
+                            //else if (doIntersect(tmpList[i_prev], tmpList[i], P, Inf))
+                            //{
+                            //    i++;
+                            //}
+                            double sum = 0;
+                            for (int k = 0; k < n; k++)
+                            {
+                                sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
+                            }
+                            if (Math.Abs(sum - area) <= 0.1)
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                        {
+                            //neu P thang hang voi canh
+                            if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
+                            {
+                                //tra ve true neu P nam tren canh
+                                return onSegment(tmpList[i], P, tmpList[i_next]);
+                            }
                         }
                         count++;
                     }
+                    i++;
                 }
                 if ((count % 2) == 1)
                     return true;
 
                 return false;
+                
             }
 
             public override List<Point> get_list_point_of_object(int index)
