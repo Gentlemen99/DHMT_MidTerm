@@ -18,15 +18,17 @@ namespace WindowsFormsApplication2
 {
     public partial class Form1 : Form
     {
-        public struct Point2D
+        public struct mypolygon
         {
-            public double X;
-            public double Y;
-
-            public Point2D(double dX, double dY)
+            public List<Point> polygon;
+            public Color color;
+            public float size;
+            
+            public mypolygon(List<Point> d_polygon, Color d_color, float d_size)
             {
-                X = dX;
-                Y = dY;
+                polygon = d_polygon;
+                color = d_color;
+                size = d_size;
             }
         }
 
@@ -39,6 +41,8 @@ namespace WindowsFormsApplication2
         OpenGL gl;
         Point pStart, pEnd;
 
+
+
         static List<Point> line_list = new List<Point>();
         static List<Point> circle_list = new List<Point>();
         static List<Point> ellipse_list = new List<Point>();
@@ -46,6 +50,7 @@ namespace WindowsFormsApplication2
         static List<Point> triangle_list = new List<Point>();
         static List<Point> pentagon_list = new List<Point>();
         static List<Point> hexagon_list = new List<Point>();
+        static List<mypolygon> polygon_list = new List<mypolygon>();
 
         static List<Color> color_line_list = new List<Color>();
         static List<Color> color_circle_list = new List<Color>();
@@ -71,6 +76,7 @@ namespace WindowsFormsApplication2
         static int type_fill_color;
 
         static int state_down_mouse;
+        static int state_right_click_mouse_down;
 
         public struct RGB_color
         {
@@ -140,8 +146,7 @@ namespace WindowsFormsApplication2
             mylines = new MyLine();
             mycircles = new MyCircle();
             myrectangles = new MyRectangle();
-
-            //myellipses = new Ellipse();
+            myellipses = new MyEllipse();
             myEqua_triangles = new MyEqua_Triangle();
             myRegular_Five_angles = new MyRegular_Five_Angle();
             myRegular_Six_angles = new MyRegular_Six_Angle();
@@ -154,6 +159,9 @@ namespace WindowsFormsApplication2
 
             //trang thai hinh to mau, nhan gia tri tu "0->6" va "-1"
             state_fill_color = -1;
+
+            //trang thai right_click cua ve polygon
+            state_right_click_mouse_down = 0;
         }
         private void openGLControl_OpenGLInitialized(object sender, EventArgs e)
         {
@@ -212,6 +220,12 @@ namespace WindowsFormsApplication2
                 pStart = e.Location;
                 pEnd = pStart;
                 state_down_mouse = 1;
+                if (want_to_draw == 7)
+                {
+                    if (e.Button == System.Windows.Forms.MouseButtons.Right)
+                        state_right_click_mouse_down = 1;
+                }
+
             }
             else
             {
@@ -244,7 +258,7 @@ namespace WindowsFormsApplication2
                 }
                 else if (want_to_draw == 3)// ve ellipse
                 {
-
+                    myellipses.append(pStart, pEnd);
                 }
                 else if (want_to_draw == 4) // ve tam giac deu
                 {
@@ -258,18 +272,30 @@ namespace WindowsFormsApplication2
                 {
                     myRegular_Six_angles.append(pStart, pEnd);
                 }
+                else if (want_to_draw == 7)
+                {
+                    if (state_right_click_mouse_down == 0)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
                 state_down_mouse = 0;
             }
         }//end opengl mouse up
 
-
+        private void bt_Polygon_Click(object sender, EventArgs e)
+        {
+            want_to_draw = 7;
+        }
 
         private void bt_Exit_Click(object sender, EventArgs e)
         {
             want_to_draw = -1;
         }
-
-
 
         private void bt_ColorTable_Click(object sender, EventArgs e)
         {
@@ -299,7 +325,7 @@ namespace WindowsFormsApplication2
                 }
                 else if (want_to_draw == 3)// ve ellipse
                 {
-
+                    myellipses.append(pStart, pEnd);
                 }
                 else if (want_to_draw == 4) // ve tam giac deu
                 {
@@ -332,6 +358,11 @@ namespace WindowsFormsApplication2
         private void bt_Line_Click(object sender, EventArgs e)
         {
             want_to_draw = 0;
+        }
+
+        private void bt_Ellipse_Click(object sender, EventArgs e)
+        {
+            want_to_draw = 3;
         }
         private void bt_Equilateral_Triangle_Click(object sender, EventArgs e)
         {
@@ -385,15 +416,15 @@ namespace WindowsFormsApplication2
             gl.Flush();
         }
 
-        private bool isvisited(List<Point> tmpList, Point P)
-        {
-            for (int i =0; i < tmpList.Count(); i++)
-            {
-                if (P.X == tmpList[i].X && P.Y == tmpList[i].Y)
-                    return true;
-            }
-            return false;
-        }
+        //private bool isvisited(List<Point> tmpList, Point P)
+        //{
+        //    for (int i =0; i < tmpList.Count(); i++)
+        //    {
+        //        if (P.X == tmpList[i].X && P.Y == tmpList[i].Y)
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
         private bool is_inside_object(int x, int y, int index)
         {
@@ -484,6 +515,7 @@ namespace WindowsFormsApplication2
                 mylines.DrawObject(gl);
                 mycircles.DrawObject(gl);
                 myrectangles.DrawObject(gl);
+                myellipses.DrawObject(gl);
                 myEqua_triangles.DrawObject(gl);
                 myRegular_Five_angles.DrawObject(gl);
                 myRegular_Six_angles.DrawObject(gl);
@@ -505,16 +537,19 @@ namespace WindowsFormsApplication2
                         {
                             RGB_color color = tmp.color;
 
-                            if (tmp.type == 0) // to loang
+                            if (tmp.type == 0) // to loang (blood fill)
                                 BoundaryFill(tmp.bloodfill_mousedown.X, tmp.bloodfill_mousedown.Y, color, index_fill_color);
-                            else // to theo dong quet
+                            else // to theo dong quet (scan line)
                             {
                                 List<Point> object_point = new List<Point>();
                                 object_point = get_list_point_of_one_object(index_fill_color, state_fill_color);
 
                                 int max_y = -9999999, min_y = 9999999;
 
-                                // luu lai cac canh cua da giac,loai bo canh co do doc = 0 va dong thoi lam ngan canh tai diem khong cuc tri
+
+                                /*
+                                 * luu lai cac canh cua da giac,loai bo canh co do doc = 0 va dong thoi lam ngan canh tai diem khong cuc tri
+                                 */
                                 int n_object_point = object_point.Count();
 
 
@@ -529,12 +564,11 @@ namespace WindowsFormsApplication2
                                     int it_next = (it + 1) % n_object_point;
                                     int it_prev = (it - 1 + n_object_point) % n_object_point;
 
-                                    //do doc = 0 thi bo qua
+                                    //do doc (1 / reci_slope) = 0 thi bo qua
                                     if (object_point[it_cur].Y == object_point[it_next].Y)
                                         continue;
 
                                     // kiem tra diem cuc tri dong thoi lam ngan canh neu khong cuc tri
-
                                     if (object_point[it_prev].Y <= object_point[it_cur].Y && object_point[it_cur].Y <= object_point[it_next].Y)
                                     {
                                         Point P = new Point(object_point[it_cur].X, object_point[it_cur].Y + 1);
@@ -576,7 +610,11 @@ namespace WindowsFormsApplication2
                                 //    ET.Add(tmp_AEL_list_index);
                                 //}
 
-                                //luu vao AEL list
+                                /*
+                                 * luu cac canh da duoc tinh che vao AEL list
+                                 */
+
+
                                 List<AEL> AEL_list = new List<AEL>();
                                 AEL tmp_AEL;
 
@@ -599,18 +637,24 @@ namespace WindowsFormsApplication2
                                     AEL_list.Add(tmp_AEL);
                                 }
 
-                                //scanline
+                                /*
+                                 * Scan line
+                                 *
+                                 */
                                 gl.Color(color.r / 255.0, color.g / 255.0, color.b / 255.0, 0);
 
                                 List<AEL> BegList = new List<AEL>();
                                 for (int it_y = min_y; it_y <= max_y; it_y++)
                                 {
+                                    // them vao beglist nhung canh co y_lower = dong quet => chi them 1 lan duy nhat (do dong quet tang dan)
                                     for (int it = 0; it < AEL_list.Count(); it++)
                                         if (AEL_list[it].y_lower == it_y)
                                             BegList.Add(AEL_list[it]);
 
+                                    // sap xep lai toa do giao diem
                                     BegList = Sort_Beglist(BegList);
 
+                                    // ve tu giao diem le den giao diem chan
                                     for (int it = 0; it < BegList.Count(); it++)
                                     {
                                         int it_next = it + 1;
@@ -622,12 +666,13 @@ namespace WindowsFormsApplication2
                                         }
 
                                     }
+                                    //loai bo canh co dong quet cham den y_upper
                                     for (int it = 0; it < BegList.Count(); it++)
                                     {
                                         if (BegList[it].y_upper == it_y)
                                             BegList.RemoveAt(it);
                                     }
-
+                                    // cap nhat lai toa do giao diem x_int = reci_slope
                                     for (int it = 0; it < BegList.Count(); it++)
                                     {
                                         tmp_AEL = new AEL(BegList[it].y_upper, (BegList[it].x_int + BegList[it].reci_slope), BegList[it].reci_slope, BegList[it].y_lower);
@@ -703,12 +748,12 @@ namespace WindowsFormsApplication2
             }
 
             ////tim trong danh sach cac hinh ellipse
-            //index = myellipses.find_index_of_object(point);
-            //if (index != -1)
-            //{
-            //    state_fill_color = 0;
-            //    return index;
-            //}
+            index = myellipses.find_index_of_object(point);
+            if (index != -1)
+            {
+                state_fill_color = 3;
+                return index;
+            }
 
             //tim trong danh sach cac tam giac DEU
             index = myEqua_triangles.find_index_of_object(point);
@@ -976,6 +1021,8 @@ namespace WindowsFormsApplication2
             public abstract List<Point> get_list_point_of_object(int index);
         } // end class object
 
+
+
         public class MyLine : Object
         {
             public override void append(Point first, Point second)
@@ -1049,6 +1096,8 @@ namespace WindowsFormsApplication2
                 return tmp;
             }
         }//end MyLine
+
+
         public class MyCircle : Object
         {
             public override void append(Point first, Point second)
@@ -1131,6 +1180,98 @@ namespace WindowsFormsApplication2
             }
         }//end MyCircle
 
+        public class MyEllipse : Object
+        {
+            public override void append(Point first, Point second)
+            {
+                int n = ellipse_list.Count();
+                for (int i = 0; i < n; i++)
+                {
+                    if (ellipse_list[i] == first && state_down_mouse == 1)
+                    {
+                        ellipse_list[i + 1] = second;
+                        return;
+                    }
+                }
+                ellipse_list.Add(first);
+                ellipse_list.Add(second);
+
+                color_ellipse_list.Add(colorUser);
+            }
+            public override void DrawObject(OpenGL gl)
+            {
+                int n = ellipse_list.Count();
+                if (ellipse_list != null && n > 0)
+                {
+                    for (int i = 0; i < n; i += 2)
+                    {
+                        Color tmpColor = color_ellipse_list[i / 2];
+                        gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
+                        gl.Begin(OpenGL.GL_LINE_LOOP);
+
+                        double d_X, d_Y;
+                        d_X = Math.Sqrt((ellipse_list[i].X - ellipse_list[i + 1].X) * (ellipse_list[i].X - ellipse_list[i + 1].X));
+                        d_Y = Math.Sqrt((ellipse_list[i].Y - ellipse_list[i + 1].Y) * (ellipse_list[i].Y - ellipse_list[i + 1].Y));
+
+                        double x = 1, y = 0, theta, t;
+
+                        
+                        for (int j = 0; j < 50; j++)
+                        {
+                            theta = 2.0f * 3.1415926f * j / (double)50;//get the current angle
+
+                            t = x;
+                            x = d_X * (Math.Cos(theta));//calculate the x component
+                            y = d_Y * (Math.Sin(theta));//calculate the y component
+
+                            gl.Vertex(x + ellipse_list[i].X, gl.RenderContextProvider.Height - (y + ellipse_list[i].Y));//output vertex
+                        }
+                        gl.End();
+                        gl.Flush();
+                    }
+                }
+            }
+            public override int find_index_of_object(Point point)
+            {
+                int n = ellipse_list.Count();
+                if (n < 0)
+                    return -1;
+                for (int i = n - 2; i >= 0; i -= 2)
+                {
+                    if (myellipses.is_inside_object(point, i))
+                        return i;
+                }
+
+                return -1;
+            }
+            public override bool is_inside_object(Point P, int index)
+            {
+                Point O = ellipse_list[index];
+                Point A = ellipse_list[index + 1];
+
+                double r_X, r_Y;
+                r_X = Math.Sqrt((O.X - A.X) * (O.X - A.X));
+                r_Y = Math.Sqrt((O.Y - A.Y) * (O.Y - A.Y));
+
+
+                double p = (Math.Pow((double)(1.0*P.X - 1.0*O.X), 2) / Math.Pow(r_X, 2)) +
+                           (Math.Pow((double)(1.0 * P.Y - 1.0 * O.Y), 2) / Math.Pow(r_Y, 2));
+
+                if (p > 1)
+                    return false;
+
+                return true;
+            }
+
+            public override List<Point> get_list_point_of_object(int index)
+            {
+                List<Point> tmp = new List<Point>();
+                tmp.Add(ellipse_list[index]);
+                tmp.Add(ellipse_list[index + 1]);
+                return tmp;
+            }
+        }//end MyEllipse
+
         public class MyRectangle : Object
         {
             public override void append(Point first, Point second)
@@ -1210,23 +1351,51 @@ namespace WindowsFormsApplication2
                 Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
+                double area = area_of_object(tmpList, 6);
+
+                int max_y = -999999, min_y = 999999;
+
+                for (int it = 0; it < n; it++)
+                {
+                    max_y = Math.Max(max_y, tmpList[it].Y);
+                    min_y = Math.Min(min_y, tmpList[it].Y);
+                }
+
                 int count = 0;
-                for (int i = 0; i < n; i++)
+                int des_count = 0;
+                int i = 0;
+                while (i < n)
                 {
                     int i_next = (i + 1) % n;
                     // giao nhau
-                    if (doIntersect(P, Inf, tmpList[i], tmpList[i_next]))
+                    if (doIntersect(tmpList[i], tmpList[i_next], P, Inf))
                     {
+                        if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
+                        {
+                            if (P.Y == tmpList[i_next].Y && P.Y != max_y && P.Y != min_y)
+                                des_count++;
+                            //double sum = 0;
+                            //for (int k = 0; k < n; k++)
+                            //{
+                            //    sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
+                            //}
+                            //if (Math.Abs(sum - area) <= 0.1)
+                            //    return true;
+                            //else
+                            //    return false;
+                        }
+                        
                         //neu P thang hang voi canh
-                        if (orientation(P, tmpList[i], tmpList[i_next]) == 0)
+                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
                         {
                             //tra ve true neu P nam tren canh
                             return onSegment(tmpList[i], P, tmpList[i_next]);
                         }
                         count++;
                     }
+                    i++;
                 }
-                if (count % 2 == 1)
+                if (((count - des_count) % 2) == 1)
                     return true;
 
                 return false;
@@ -1350,23 +1519,51 @@ namespace WindowsFormsApplication2
                 Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
+                double area = area_of_object(tmpList, 6);
+
+                int max_y = -999999, min_y = 999999;
+
+                for (int it = 0; it < n; it++)
+                {
+                    max_y = Math.Max(max_y, tmpList[it].Y);
+                    min_y = Math.Min(min_y, tmpList[it].Y);
+                }
+
                 int count = 0;
-                for (int i = 0; i < n; i++)
+                int des_count = 0;
+                int i = 0;
+                while (i < n)
                 {
                     int i_next = (i + 1) % n;
                     // giao nhau
-                    if (doIntersect(P, Inf, tmpList[i], tmpList[i_next]))
+                    if (doIntersect(tmpList[i], tmpList[i_next], P, Inf))
                     {
+                        if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
+                        {
+                            if (P.Y == tmpList[i_next].Y && P.Y != max_y && P.Y != min_y)
+                                des_count++;
+                            //double sum = 0;
+                            //for (int k = 0; k < n; k++)
+                            //{
+                            //    sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
+                            //}
+                            //if (Math.Abs(sum - area) <= 0.1)
+                            //    return true;
+                            //else
+                            //    return false;
+                        }
+
                         //neu P thang hang voi canh
-                        if (orientation(P, tmpList[i], tmpList[i_next]) == 0)
+                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
                         {
                             //tra ve true neu P nam tren canh
                             return onSegment(tmpList[i], P, tmpList[i_next]);
                         }
                         count++;
                     }
+                    i++;
                 }
-                if (count % 2 == 1)
+                if (((count - des_count) % 2) == 1)
                     return true;
 
                 return false;
@@ -1481,23 +1678,51 @@ namespace WindowsFormsApplication2
                 Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
+                double area = area_of_object(tmpList, 6);
+
+                int max_y = -999999, min_y = 999999;
+
+                for (int it = 0; it < n; it++)
+                {
+                    max_y = Math.Max(max_y, tmpList[it].Y);
+                    min_y = Math.Min(min_y, tmpList[it].Y);
+                }
+
                 int count = 0;
-                for (int i = 0; i < n; i++)
+                int des_count = 0;
+                int i = 0;
+                while (i < n)
                 {
                     int i_next = (i + 1) % n;
                     // giao nhau
-                    if (doIntersect(P, Inf, tmpList[i], tmpList[i_next]))
+                    if (doIntersect(tmpList[i], tmpList[i_next], P, Inf))
                     {
+                        if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
+                        {
+                            if (P.Y == tmpList[i_next].Y && P.Y != max_y && P.Y != min_y)
+                                des_count++;
+                            //double sum = 0;
+                            //for (int k = 0; k < n; k++)
+                            //{
+                            //    sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
+                            //}
+                            //if (Math.Abs(sum - area) <= 0.1)
+                            //    return true;
+                            //else
+                            //    return false;
+                        }
+
                         //neu P thang hang voi canh
-                        if (orientation(P, tmpList[i], tmpList[i_next]) == 0)
+                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
                         {
                             //tra ve true neu P nam tren canh
                             return onSegment(tmpList[i], P, tmpList[i_next]);
                         }
                         count++;
                     }
+                    i++;
                 }
-                if (count % 2 == 1)
+                if (((count - des_count) % 2) == 1)
                     return true;
 
                 return false;
@@ -1621,27 +1846,19 @@ namespace WindowsFormsApplication2
                 Point Inf = new Point(1000, P.Y);
 
                 int n = tmpList.Count();
-                //for (int i = 0; i < n; i++)
-                //{
-                //    int i_cur = i % n;
-                //    int i_next = (i + 1) % n;
-                //    int i_prev = (i - 1 + n) % n;
-
-                //    if (tmpList[i_prev].Y <= tmpList[i_cur].Y && tmpList[i_cur].Y <= tmpList[i_next].Y)
-                //    {
-                //        Point tmpPoint = new Point(tmpList[i_cur].X, tmpList[i_cur].Y - 1);
-                //        tmpList[i_cur] = tmpPoint;
-                //    }
-                //    else if (tmpList[i_prev].Y >= tmpList[i_cur].Y && tmpList[i_cur].Y >= tmpList[i_next].Y)
-                //    {
-                //        Point tmpPoint = new Point(tmpList[i_cur].X, tmpList[i_cur].Y + 1);
-                //        tmpList[i_cur] = tmpPoint;
-                //    }
-                //}
 
                 double area = area_of_object(tmpList, 6);
 
+                int max_y = -999999, min_y = 999999;
+
+                for (int it = 0; it < n; it++)
+                {
+                    max_y = Math.Max(max_y, tmpList[it].Y);
+                    min_y = Math.Min(min_y, tmpList[it].Y);
+                }
+
                 int count = 0;
+                int des_count = 0;
                 int i = 0;
                 while (i < n)
                 {
@@ -1651,44 +1868,180 @@ namespace WindowsFormsApplication2
                     {
                         if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
                         {
-                            //int i_next_next = (i_next + 1) % n;
-                            //int i_prev = (i - 1 + n) % n;
-                            //if (doIntersect(tmpList[i_next], tmpList[i_next_next], P, Inf))
+                            if (P.Y == tmpList[i_next].Y && P.Y != max_y && P.Y != min_y)
+                                des_count++;
+                            //double sum = 0;
+                            //for (int k = 0; k < n; k++)
                             //{
-                            //    i++;
+                            //    sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
                             //}
-                            //else if (doIntersect(tmpList[i_prev], tmpList[i], P, Inf))
-                            //{
-                            //    i++;
-                            //}
-                            double sum = 0;
-                            for (int k = 0; k < n; k++)
-                            {
-                                sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
-                            }
-                            if (Math.Abs(sum - area) <= 0.1)
-                                return true;
-                            else
-                                return false;
+                            //if (Math.Abs(sum - area) <= 0.1)
+                            //    return true;
+                            //else
+                            //    return false;
                         }
-                        else
+                        //neu P thang hang voi canh
+                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
                         {
-                            //neu P thang hang voi canh
-                            if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
-                            {
-                                //tra ve true neu P nam tren canh
-                                return onSegment(tmpList[i], P, tmpList[i_next]);
-                            }
+                            //tra ve true neu P nam tren canh
+                            return onSegment(tmpList[i], P, tmpList[i_next]);
                         }
                         count++;
                     }
                     i++;
                 }
-                if ((count % 2) == 1)
+                if (((count - des_count)% 2) == 1)
                     return true;
 
                 return false;
                 
+            }
+
+            public override List<Point> get_list_point_of_object(int index)
+            {
+                List<Point> tmp = new List<Point>();
+                tmp.Add(hexagon_list[index]);
+                tmp.Add(hexagon_list[index + 1]);
+                tmp.Add(hexagon_list[index + 2]);
+                tmp.Add(hexagon_list[index + 3]);
+                tmp.Add(hexagon_list[index + 4]);
+                tmp.Add(hexagon_list[index + 5]);
+                return tmp;
+            }
+        } //end hexagon
+
+        public class MyPolygon : Object
+        {
+            public override void append(Point first, Point second)
+            {
+                int n = polygon_list.Count();
+                for (int i = 0; i < n; i++)
+                {
+                    int m = polygon_list[i].polygon.Count();
+                    for (int j = 0; j < m; j++)
+                    {
+                        if (polygon_list[i].polygon[j] == first)
+                        {
+                            if ((j + 1) >= m)
+                                polygon_list[i].polygon.Add(second);
+                            else
+                                polygon_list[i].polygon[j + 1] = second;
+                            return;
+                        }
+                    }
+                }
+                List<Point> tmp_list = new List<Point>();
+                tmp_list.Add(first);
+                tmp_list.Add(second);
+                mypolygon tmp = new mypolygon(tmp_list, colorUser, sizeUser);
+
+                polygon_list.Add(tmp);
+            }
+            public override void DrawObject(OpenGL gl)
+            {
+                int n = polygon_list.Count();
+                if (polygon_list != null && n > 0)
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        int m = polygon_list[i].polygon.Count();
+                        Color tmpColor = polygon_list[i].color;
+                        gl.Color(tmpColor.R / 255.0, tmpColor.G / 255.0, tmpColor.B / 255.0, 0);
+                        gl.Begin(OpenGL.GL_LINE_LOOP);
+                        for (int j = 0; j < m; j++)
+                        {
+                            gl.Vertex(polygon_list[i].polygon[j].X, gl.RenderContextProvider.Height - polygon_list[i].polygon[i].Y);//output vertex
+                        }
+                        gl.End();
+                        gl.Flush();
+
+
+                    }
+                }
+            }
+
+            public override int find_index_of_object(Point point)
+            {
+                int n = hexagon_list.Count();
+                if (n < 0)
+                    return -1;
+                for (int i = n - 6; i >= 0; i -= 6)
+                {
+                    if (myRegular_Six_angles.is_inside_object(point, i))
+                        return i;
+                }
+
+                return -1;
+            }
+            public override bool is_inside_object(Point P, int index)
+            {
+                Point A = new Point(hexagon_list[index].X, hexagon_list[index].Y);
+                Point B = new Point(hexagon_list[index + 1].X, hexagon_list[index + 1].Y);
+                Point C = new Point(hexagon_list[index + 2].X, hexagon_list[index + 2].Y);
+                Point D = new Point(hexagon_list[index + 3].X, hexagon_list[index + 3].Y);
+                Point E = new Point(hexagon_list[index + 4].X, hexagon_list[index + 4].Y);
+                Point F = new Point(hexagon_list[index + 5].X, hexagon_list[index + 5].Y);
+                List<Point> tmpList = new List<Point>();
+                tmpList.Add(A);
+                tmpList.Add(B);
+                tmpList.Add(C);
+                tmpList.Add(D);
+                tmpList.Add(E);
+                tmpList.Add(F);
+
+
+                Point Inf = new Point(1000, P.Y);
+
+                int n = tmpList.Count();
+
+                double area = area_of_object(tmpList, 6);
+
+                int max_y = -999999, min_y = 999999;
+
+                for (int it = 0; it < n; it++)
+                {
+                    max_y = Math.Max(max_y, tmpList[it].Y);
+                    min_y = Math.Min(min_y, tmpList[it].Y);
+                }
+
+                int count = 0;
+                int des_count = 0;
+                int i = 0;
+                while (i < n)
+                {
+                    int i_next = (i + 1) % n;
+                    // giao nhau
+                    if (doIntersect(tmpList[i], tmpList[i_next], P, Inf))
+                    {
+                        if (P.Y == tmpList[i].Y || P.Y == tmpList[i_next].Y)
+                        {
+                            if (P.Y == tmpList[i_next].Y && P.Y != max_y && P.Y != min_y)
+                                des_count++;
+                            //double sum = 0;
+                            //for (int k = 0; k < n; k++)
+                            //{
+                            //    sum += Herong(P, tmpList[k], tmpList[(k + 1) % n]);
+                            //}
+                            //if (Math.Abs(sum - area) <= 0.1)
+                            //    return true;
+                            //else
+                            //    return false;
+                        }
+                        //neu P thang hang voi canh
+                        if (orientation(tmpList[i], P, tmpList[i_next]) == 0)
+                        {
+                            //tra ve true neu P nam tren canh
+                            return onSegment(tmpList[i], P, tmpList[i_next]);
+                        }
+                        count++;
+                    }
+                    i++;
+                }
+                if (((count - des_count) % 2) == 1)
+                    return true;
+
+                return false;
+
             }
 
             public override List<Point> get_list_point_of_object(int index)

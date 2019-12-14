@@ -43,6 +43,8 @@
             this.bt_Color_Fill = new System.Windows.Forms.Button();
             this.bt_BloodFill = new System.Windows.Forms.Button();
             this.bt_ScanLine = new System.Windows.Forms.Button();
+            this.bt_Ellipse = new System.Windows.Forms.Button();
+            this.bt_Polygon = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.openGLControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -71,7 +73,7 @@
             // 
             this.bt_ColorTable.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.bt_ColorTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bt_ColorTable.Location = new System.Drawing.Point(877, 12);
+            this.bt_ColorTable.Location = new System.Drawing.Point(992, 13);
             this.bt_ColorTable.Name = "bt_ColorTable";
             this.bt_ColorTable.Size = new System.Drawing.Size(99, 46);
             this.bt_ColorTable.TabIndex = 2;
@@ -95,7 +97,7 @@
             // 
             this.bt_Exit.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.bt_Exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bt_Exit.Location = new System.Drawing.Point(763, 13);
+            this.bt_Exit.Location = new System.Drawing.Point(901, 12);
             this.bt_Exit.Name = "bt_Exit";
             this.bt_Exit.Size = new System.Drawing.Size(75, 45);
             this.bt_Exit.TabIndex = 4;
@@ -137,7 +139,7 @@
             this.bt_Equilateral_Triangle.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.bt_Equilateral_Triangle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bt_Equilateral_Triangle.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.bt_Equilateral_Triangle.Location = new System.Drawing.Point(393, 13);
+            this.bt_Equilateral_Triangle.Location = new System.Drawing.Point(483, 13);
             this.bt_Equilateral_Triangle.Name = "bt_Equilateral_Triangle";
             this.bt_Equilateral_Triangle.Size = new System.Drawing.Size(75, 45);
             this.bt_Equilateral_Triangle.TabIndex = 7;
@@ -149,11 +151,11 @@
             // 
             this.bt_Regular_Five_Polygon.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.bt_Regular_Five_Polygon.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bt_Regular_Five_Polygon.Location = new System.Drawing.Point(493, 13);
+            this.bt_Regular_Five_Polygon.Location = new System.Drawing.Point(588, 12);
             this.bt_Regular_Five_Polygon.Name = "bt_Regular_Five_Polygon";
-            this.bt_Regular_Five_Polygon.Size = new System.Drawing.Size(75, 59);
+            this.bt_Regular_Five_Polygon.Size = new System.Drawing.Size(75, 45);
             this.bt_Regular_Five_Polygon.TabIndex = 8;
-            this.bt_Regular_Five_Polygon.Text = "Regular Five Polygon";
+            this.bt_Regular_Five_Polygon.Text = "Pentagon";
             this.bt_Regular_Five_Polygon.UseVisualStyleBackColor = false;
             this.bt_Regular_Five_Polygon.Click += new System.EventHandler(this.bt_Regular_Five_Polygon_Click);
             // 
@@ -161,11 +163,11 @@
             // 
             this.bt_Regular_Six_Polygon.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.bt_Regular_Six_Polygon.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bt_Regular_Six_Polygon.Location = new System.Drawing.Point(588, 13);
+            this.bt_Regular_Six_Polygon.Location = new System.Drawing.Point(687, 12);
             this.bt_Regular_Six_Polygon.Name = "bt_Regular_Six_Polygon";
-            this.bt_Regular_Six_Polygon.Size = new System.Drawing.Size(75, 59);
+            this.bt_Regular_Six_Polygon.Size = new System.Drawing.Size(75, 46);
             this.bt_Regular_Six_Polygon.TabIndex = 9;
-            this.bt_Regular_Six_Polygon.Text = "Regular Six Polygon";
+            this.bt_Regular_Six_Polygon.Text = "Hexagon";
             this.bt_Regular_Six_Polygon.UseVisualStyleBackColor = false;
             this.bt_Regular_Six_Polygon.Click += new System.EventHandler(this.bt_Regular_Six_Polygon_Click);
             // 
@@ -205,11 +207,38 @@
             this.bt_ScanLine.UseVisualStyleBackColor = false;
             this.bt_ScanLine.Click += new System.EventHandler(this.bt_ScanLine_Click);
             // 
+            // bt_Ellipse
+            // 
+            this.bt_Ellipse.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_Ellipse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_Ellipse.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.bt_Ellipse.Location = new System.Drawing.Point(384, 12);
+            this.bt_Ellipse.Name = "bt_Ellipse";
+            this.bt_Ellipse.Size = new System.Drawing.Size(75, 45);
+            this.bt_Ellipse.TabIndex = 13;
+            this.bt_Ellipse.Text = "Ellipse";
+            this.bt_Ellipse.UseVisualStyleBackColor = false;
+            this.bt_Ellipse.Click += new System.EventHandler(this.bt_Ellipse_Click);
+            // 
+            // bt_Polygon
+            // 
+            this.bt_Polygon.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.bt_Polygon.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bt_Polygon.Location = new System.Drawing.Point(791, 13);
+            this.bt_Polygon.Name = "bt_Polygon";
+            this.bt_Polygon.Size = new System.Drawing.Size(75, 46);
+            this.bt_Polygon.TabIndex = 14;
+            this.bt_Polygon.Text = "Polygon";
+            this.bt_Polygon.UseVisualStyleBackColor = false;
+            this.bt_Polygon.Click += new System.EventHandler(this.bt_Polygon_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1118, 620);
+            this.Controls.Add(this.bt_Polygon);
+            this.Controls.Add(this.bt_Ellipse);
             this.Controls.Add(this.bt_ScanLine);
             this.Controls.Add(this.bt_BloodFill);
             this.Controls.Add(this.bt_Color_Fill);
@@ -248,6 +277,8 @@
         private System.Windows.Forms.Button bt_Color_Fill;
         private System.Windows.Forms.Button bt_BloodFill;
         private System.Windows.Forms.Button bt_ScanLine;
+        private System.Windows.Forms.Button bt_Ellipse;
+        private System.Windows.Forms.Button bt_Polygon;
     }
 }
 
